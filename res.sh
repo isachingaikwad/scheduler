@@ -110,76 +110,8 @@ export NACStackCreationFailed=301
 	COMMAND="docker inspect ${REPOSITORY_URL}:${IMAGE_TAG}"
 	###  Run the command then check the status code
 	$COMMAND
-	RESULT_IMAGE_EXISTS=$?
-	if [ $RESULT_IMAGE_EXISTS -ne 0 ]; then
-		### Image did not exist
-		echo "IMAGE ${IMAGE_TAG} does not exist in ECR Repo. So, Building a new Docker image..."
-		COMMAND="docker build -t $REPOSITORY_NAME ." # WORKING
-		# COMMAND="docker build -t $REPOSITORY_URL:$IMAGE_TAG ."
-		$COMMAND
-		echo "INFO ::: BUILD SUCCESS - Docker image ::: $COMMAND"
-
-		echo "INFO ::: Tagging Docker image. . . . . . . . . . . . . . ."
-		COMMAND="docker tag ${REPOSITORY_NAME}:latest ${REPOSITORY_URL}:${IMAGE_TAG}"
-		$COMMAND
-		echo "INFO ::: Pushing Docker image ${IMAGE_TAG} to ECR Repo :::  ${REPOSITORY_URL}"
-		COMMAND="docker push ${REPOSITORY_URL}:${IMAGE_TAG}"
-		$COMMAND
-		if [ $? -ne 0 ]; then
-		echo "INFO ::: Successfully Pushed Docker image to ECR ::: $COMMAND"
-		else 
-		echo "ERROR ::: $?"
-		fi
-	else
-		### Image exists already
-		echo "WARNING ::: Docker image ${IMAGE_TAG} already exists in ECR repo ::: ${REPOSITORY_URL}"
-	fi
-	# COMMAND="docker run --rm -it ${REPOSITORY_URL}:${IMAGE_TAG} bash"
-	COMMAND="docker system prune -a -f"
-	$COMMAND
-	COMMAND="docker run --rm -itd --name con-${IMAGE_TAG} ${REPOSITORY_URL}:${IMAGE_TAG} bash"
-	# COMMAND="docker run --rm -it -v ./project/${TFVARS_FILE} ${REPOSITORY_URL}:${IMAGE_TAG} bash"
-	echo "INFO ::: RUN Docker Container ::: $COMMAND"
-	$COMMAND
-	COMMAND="docker cp $TFVARS_FILE con-${IMAGE_TAG}:./project/$TFVARS_FILE"
-	echo "INFO ::: Copy tfvars file to Docker Container ::: $COMMAND"
-	$COMMAND
-	COMMAND="docker cp ./.aws con-${IMAGE_TAG}:/root/"
-	echo "INFO ::: Copy AWS Credential files to Docker Container /root/.aws/ folder ::: $COMMAND"
-	$COMMAND
-	# docker cp ./.aws container-nac-tf:/root/
-	#######  Run the runContiner.sh
-	# docker exec -it con-nac-tf bash -c ./runCon.sh
-	echo "INFO ::: Execute script runCon.sh in Docker Container ::: con-${IMAGE_TAG}"
-	COMMAND="docker exec -it con-${IMAGE_TAG} bash -c ./runCon.sh"
-	$COMMAND
-	RESULT=$?
-	if [ $RESULT -ne 0 ]; then
-		echo "ERROR ::: Docker container creation :::  FAILED"
-	else
-		echo "INFO ::: Docker container creation ::: SUCCESS"
-	fi
-
-	END=$(date +%s)
-	DIFF=$(( $END - $START ))
-	echo "Total execution Time ::: $DIFF seconds"
-	exit 0
 
 } || {
 	echo "ERROR ::: Failed NAC Povisioning" && throw $NACStackCreationFailed
 
 }
-
-# docker run --rm -it -v "config:/awscre/config" akak:latest bash
-
-# docker run --rm -it -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} -e AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION} akak:latest bash
-# docker run --rm -it -e AWS_ACCESS_KEY_ID=pkAWS_ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=pkAWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=pktrgion akak:latest bash
-# docker run --rm -it -e AWS_ACCESS_KEY_ID=pkAWS_ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=pkAWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=pktrgion 514960042727.dkr.ecr.us-east-1.amazonaws.com/nct-nce-es:nac-tf /bin/bash
-
-# docker run --rm -it -v ./project/user.tfvars -v /root/.aws/credentials 514960042727.dkr.ecr.us-east-1.amazonaws.com/nct-nce-es:nac-tf bash
-
-# aws ecr get-login-password | docker login --username AWS --password-stdin 514960042727.dkr.ecr.us-east-1.amazonaws.com/nct-nce-es:nac-tf
-
-# docker run --rm -itd --name container-nac-tf 514960042727.dkr.ecr.us-east-1.amazonaws.com/nct-nce-es:nac-tf bash
-# docker cp user.tfvars container-nac-tf:./project/user.tfvars
-# docker cp ./.aws container-nac-tf:/root/
