@@ -1,7 +1,15 @@
 #!/bin/bash
 set -e
 set -o pipefail
-
+cleanup() {
+            exitcode=$?
+            printf 'error condition hit\n' 1>&2
+            printf 'exit code returned: %s\n' "$exitcode"
+            printf 'the command executing at the time of the error was: %s\n' "$BASH_COMMAND"
+            printf 'command present on line: %d' "${BASH_LINENO[0]}"
+            # Some more clean up code can be added here before exiting
+            exit $exitcode
+         }
 START=$(date +%s)
 export NACStackCreationFailed=301
 {
