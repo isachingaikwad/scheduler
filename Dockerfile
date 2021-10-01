@@ -11,10 +11,7 @@ RUN apk -v --update add python3 py3-pip groff less mailcap && \
     pip3 install awscli && \
     apk -v --purge del py3-pip && \
     rm /var/cache/apk/*
-# RUN mkdir /root/.aws/
 VOLUME /root/.aws
 VOLUME /project
-# COPY nac-es /project
 WORKDIR /project
-# ENTRYPOINT ["/bin/sh/", runContainer.sh]
-CMD /bin/bash/ runContainer.sh
+CMD /bin/bash/ provision_nac.sh
