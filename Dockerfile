@@ -13,5 +13,7 @@ RUN apk -v --update add python3 py3-pip groff less mailcap && \
     rm /var/cache/apk/*
 VOLUME /root/.aws
 VOLUME /project
+RUN chmod 755 /project
+#COPY provision_nac.sh /project/provision_nac.sh
 WORKDIR /project
 CMD /bin/bash/ provision_nac.sh

@@ -54,7 +54,7 @@ export NACStackCreationFailed=301
 		HOME_PATH=$USERPROFILE
 		echo "$HOME_PATH"
 	else
-		HOME_PATH=$HOME
+		HOME_PATH=~/
 	fi
 	### Copy AWS configuration to current Directory
 	AWS_CREDENTIAL_FILE="$HOME_PATH/.aws/credentials"
@@ -142,8 +142,7 @@ export NACStackCreationFailed=301
 	### Construct unique Container Name, by taking imageTag and TFVARS File Name
 	TFVARS_FILE_NAME=$(echo "$TFVARS_FILE" | cut -d'.' -f1)
 	CONTAINER_NAME="con-${IMAGE_TAG}-${TFVARS_FILE_NAME}"
-
-	COMMAND="docker run --rm -itd --name ${CONTAINER_NAME} ${REPOSITORY_URL}:${IMAGE_TAG} bash"
+	COMMAND="docker run --rm -itd --name ${CONTAINER_NAME} ${REPOSITORY_URL}:${IMAGE_TAG} bash ./provision_nac.sh"
 	echo "INFO ::: Run Docker Container ::: $COMMAND"
 	$COMMAND
 	COMMAND="docker cp $TFVARS_FILE ${CONTAINER_NAME}:./project/nac_es.tfvars"
@@ -153,7 +152,9 @@ export NACStackCreationFailed=301
 	echo "INFO ::: Copy AWS Credential files to Docker Container /root/.aws/ folder ::: $COMMAND"
 	$COMMAND
 	
+	sudo chmod 755 provision_nac.sh
 	COMMAND="docker cp provision_nac.sh ${CONTAINER_NAME}:./project/provision_nac.sh"
+	# COMMAND="docker cp provision_nac.sh ${CONTAINER_NAME}:./project/provision_nac.sh | chmod 755 provision_nac.sh"
 	echo "INFO ::: Copy provision_nac.sh file to Docker Container ::: $COMMAND"
 	$COMMAND
 

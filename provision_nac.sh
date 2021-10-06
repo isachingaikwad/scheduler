@@ -42,6 +42,7 @@ export NACStackCreationFailed=301
     echo "NAC PROVISIONING ::: STARTED ::: Executing the Terraform scripts . . . . . . . . . . . ."
     COMMAND="terraform init"
     $COMMAND
+    chmod 755 $(pwd)/${GIT_REPO_NAME}/*
     # exit 1
     echo "NAC PROVISIONING ::: Initialized Terraform Libraries/Dependencies"
     echo "NAC PROVISIONING ::: STARTED ::: Terraform apply . . . . . . . . . . . . . . . . . . ."
